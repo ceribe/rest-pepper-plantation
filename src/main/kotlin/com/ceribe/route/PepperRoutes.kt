@@ -7,7 +7,7 @@ import io.ktor.server.response.*
 import io.ktor.server.routing.*
 
 fun Route.pepperRouting() {
-    route("/pepper") {
+    route("peppers") {
         get {
             if (Database.peppers.isNotEmpty()) {
                 call.respond(Database.peppers)
@@ -18,18 +18,28 @@ fun Route.pepperRouting() {
         post {
 
         }
+        route("{id}") {
 
-        get ("{id?}") {
+            get {
 
-        }
-        put ("{id}") {
+            }
+            put {
 
-        }
-        patch ("{id}") {
+            }
+            patch {
 
-        }
-        delete ("{id}") {
+            }
+            delete {
 
+            }
+
+            post ("waterings") {
+
+            }
+
+            post ("repottings") {
+
+            }
         }
     }
 }
