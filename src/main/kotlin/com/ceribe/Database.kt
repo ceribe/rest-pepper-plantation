@@ -28,7 +28,7 @@ object Database {
         return newId
     }
 
-    fun addDummyPepper() = addPepper(Pepper("", 0, System.currentTimeMillis().toString()))
+    fun addDummyPepper() = addPepper(Pepper("", 0, System.currentTimeMillis()))
 
     fun getPepperById(id: Int) = peppersMap[id]
 
