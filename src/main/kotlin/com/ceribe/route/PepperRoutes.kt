@@ -1,6 +1,7 @@
 package com.ceribe.route
 
 import com.ceribe.Database
+import com.ceribe.models.Pepper
 import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.response.*
@@ -10,9 +11,9 @@ fun Route.pepperRouting() {
     route("peppers") {
         get {
             if (Database.peppers.isNotEmpty()) {
-                call.respond(Database.peppers)
+                call.respond(Database.peppers.toString())
             } else {
-                call.respondText("No peppers found", status = HttpStatusCode.OK)
+                call.respond(HttpStatusCode.NotFound, "No peppers found")
             }
         }
         post {
@@ -24,9 +25,6 @@ fun Route.pepperRouting() {
 
             }
             put {
-
-            }
-            patch {
 
             }
             delete {

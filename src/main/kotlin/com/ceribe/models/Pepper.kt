@@ -3,4 +3,4 @@ package com.ceribe.models
 import kotlinx.serialization.Serializable
 
 @Serializable
-data class Pepper(val id: Int, val name: String, val pot: String, val lastWatering: String)
+data class Pepper(var name: String, var pot: String, var lastWatering: String)
