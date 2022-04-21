@@ -59,6 +59,8 @@ object Database {
         return newId
     }
 
+    fun addDummyPot() = addPot(Pot("", 0))
+
     fun updatePot(pot: Pot, id: Int) {
         potsMap[id] = pot
     }

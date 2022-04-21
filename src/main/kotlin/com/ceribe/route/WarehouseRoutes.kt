@@ -35,11 +35,16 @@ fun Route.warehouseRouting() {
         }
         route ("pots") {
             get {
-
+                val pots = Database.pots.filter { it.count > 0 }
+                if (pots.isNotEmpty()) {
+                    call.respond(HttpStatusCode.OK, pots.toString())
+                } else {
+                    call.respond(HttpStatusCode.NotFound, "No unused pots found")
+                }
             }
-
             post {
-
+                val createPotId = Database.addDummyPot()
+                call.respond(HttpStatusCode.Created, "Pot created with id: $createPotId")
             }
             route("{id}") {
                 get {

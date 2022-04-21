@@ -14,7 +14,7 @@ fun Route.pepperRouting() {
             val requestedName = call.request.queryParameters["name"]
             val matchingPeppersList = Database.getFilteredPeppers(requestedName)
             if (matchingPeppersList.isNotEmpty()) {
-                call.respond(matchingPeppersList.toString())
+                call.respond(HttpStatusCode.OK, matchingPeppersList.toString())
             } else {
                 call.respond(HttpStatusCode.NotFound, "No peppers found")
             }
