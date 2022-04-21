@@ -38,7 +38,7 @@ fun Route.pepperRouting() {
                 val id = call.parameters["id"]!!.toInt()
                 if (Database.doesPepperExist(id)) {
                     val newPepper = call.receive<Pepper>()
-                    newPepper.lastWatering = System.currentTimeMillis().toString()
+                    newPepper.lastWatering = System.currentTimeMillis()
                     if (Database.getPotCountById(newPepper.potId) == 0) {
                         call.respond(HttpStatusCode.BadRequest, "Pot with id: ${newPepper.potId} does not exist")
                     } else {
@@ -63,7 +63,7 @@ fun Route.pepperRouting() {
                 if (Database.doesPepperExist(id)) {
                     if (Database.waterAmount > 1) {
                         Database.waterAmount -= 1
-                        Database.getPepperById(id)?.lastWatering = System.currentTimeMillis().toString()
+                        Database.getPepperById(id)?.lastWatering = System.currentTimeMillis()
                         call.respond(HttpStatusCode.OK, "Pepper watered")
                     } else {
                         call.respond(HttpStatusCode.BadRequest, "Not enough water")
