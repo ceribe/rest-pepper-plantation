@@ -24,7 +24,7 @@ fun Route.pepperRouting() {
             call.respond(HttpStatusCode.Created, "Pepper created with id: $createdPepperId")
         }
     }
-    
+
     route("peppers/{id}") {
         get {
             val id = call.parameters["id"]!!.toInt()
