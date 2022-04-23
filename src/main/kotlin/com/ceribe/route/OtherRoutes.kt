@@ -9,18 +9,13 @@ import io.ktor.server.routing.*
 fun Route.otherRouting() {
     route("/waterings") {
         post {
-            val pepperCount = Database.peppers.size
-            val isEnoughWater = pepperCount <= Database.waterAmount
-            if (isEnoughWater) {
-                Database.waterAmount -= pepperCount
-                Database.peppers.forEach {
-                    it.lastWatering = System.currentTimeMillis()
-                }
-                Database.updateAllPeppersETag()
-                call.respond(HttpStatusCode.OK, "All peppers watered")
-            } else {
+            val isEnoughWater = Database.canWaterAllPeppers()
+            if (!isEnoughWater) {
                 call.respond(HttpStatusCode.BadRequest, "Not enough water")
+                return@post
             }
+            Database.waterAllPeppers()
+            call.respond(HttpStatusCode.OK, "All peppers watered")
         }
     }
 }

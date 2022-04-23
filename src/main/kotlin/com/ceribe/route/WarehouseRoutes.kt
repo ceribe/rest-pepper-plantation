@@ -39,8 +39,12 @@ fun Route.warehouseRouting() {
 
         put {
             val body = call.receive<String>()
-            Database.waterAmount = body.toInt()
-            call.respond(HttpStatusCode.OK, "Water: ${Database.waterAmount}")
+            try {
+                Database.waterAmount = body.toInt()
+                call.respond(HttpStatusCode.OK, "Water: ${Database.waterAmount}")
+            } catch (e: NumberFormatException) {
+                call.respond(HttpStatusCode.BadRequest, "Invalid water amount")
+            }
         }
     }
 
@@ -50,8 +54,12 @@ fun Route.warehouseRouting() {
         }
         put {
             val body = call.receive<String>()
-            Database.soilAmount = body.toInt()
-            call.respond(HttpStatusCode.OK, "Soil: ${Database.soilAmount}")
+            try {
+                Database.soilAmount = body.toInt()
+                call.respond(HttpStatusCode.OK, "Soil: ${Database.soilAmount}")
+            } catch (e: NumberFormatException) {
+                call.respond(HttpStatusCode.BadRequest, "Invalid soil amount")
+            }
         }
     }
 
@@ -65,8 +73,9 @@ fun Route.warehouseRouting() {
             }
         }
         post {
-            val createPotId = Database.addDummyPot()
-            call.respond(HttpStatusCode.Created, "Pot created with id: $createPotId")
+            val createdPotId = Database.addDummyPot()
+            call.response.etag(Database.getPotsETag(createdPotId))
+            call.respond(HttpStatusCode.Created, "Pot created with id: $createdPotId")
         }
     }
 
@@ -74,26 +83,26 @@ fun Route.warehouseRouting() {
         get {
             val id = call.parameters["id"]!!.toInt()
             val pepper = Database.getPot(id)
-            if (pepper != null) {
-                call.response.etag(Database.getPotsETag(id))
-                call.respond(HttpStatusCode.OK, pepper)
-            } else {
+            if (pepper == null) {
                 call.respond(HttpStatusCode.NotFound, "No pepper found with id: $id")
+                return@get
             }
+            call.response.etag(Database.getPotsETag(id))
+            call.respond(HttpStatusCode.OK, pepper)
         }
         //curl -H Content-Type:application/json -X PUT http://localhost:8080/warehouse/pots/1 --data {"name":"small","count":10}
         put {
             val id = call.parameters["id"]!!.toInt()
             val etagMatches = checkETag(call, id)
             if (!etagMatches) return@put
-            if (Database.doesPotExist(id)) {
-                val newPot = call.receive<Pot>()
-                Database.updatePot(id, newPot)
-                call.response.etag(Database.getPotsETag(id))
-                call.respond(HttpStatusCode.OK, "Pot updated")
-            } else {
+            if (!Database.doesPotExist(id)) {
                 call.respond(HttpStatusCode.NotFound, "No pot found with id: $id")
+                return@put
             }
+            val updatedPot = call.receive<Pot>()
+            Database.updatePot(id, updatedPot)
+            call.response.etag(Database.getPotsETag(id))
+            call.respond(HttpStatusCode.OK, "Pot updated")
         }
         delete {
             val id = call.parameters["id"]!!.toInt()
