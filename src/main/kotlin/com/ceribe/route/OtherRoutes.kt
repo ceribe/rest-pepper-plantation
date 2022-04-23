@@ -16,6 +16,7 @@ fun Route.otherRouting() {
                 Database.peppers.forEach {
                     it.lastWatering = System.currentTimeMillis()
                 }
+                Database.updateAllPeppersETag()
                 call.respond(HttpStatusCode.OK, "All peppers watered")
             } else {
                 call.respond(HttpStatusCode.BadRequest, "Not enough water")

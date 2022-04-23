@@ -9,6 +9,20 @@ import io.ktor.server.response.*
 import io.ktor.server.routing.*
 
 fun Route.warehouseRouting() {
+
+    suspend fun checkETag(call: ApplicationCall, potId: Int): Boolean {
+        val etag = call.request.header("ETag")
+        if (etag == null) {
+            call.respond(HttpStatusCode.BadRequest, "Missing ETag header")
+            return false
+        }
+        if (etag != Database.getPotsETag(potId)) {
+            call.respond(HttpStatusCode.PreconditionFailed, "ETag does not match")
+            return false
+        }
+        return true
+    }
+
     route("warehouse") {
         get {
             call.respond(
@@ -58,11 +72,10 @@ fun Route.warehouseRouting() {
 
     route("warehouse/pots/{id}") {
         get {
-//            val etag = call.request.headers["ETag"]
             val id = call.parameters["id"]!!.toInt()
             val pepper = Database.getPot(id)
             if (pepper != null) {
-//                call.response.etag("sfsdf")
+                call.response.etag(Database.getPotsETag(id))
                 call.respond(HttpStatusCode.OK, pepper)
             } else {
                 call.respond(HttpStatusCode.NotFound, "No pepper found with id: $id")
@@ -71,9 +84,12 @@ fun Route.warehouseRouting() {
         //curl -H Content-Type:application/json -X PUT http://localhost:8080/warehouse/pots/1 --data {"name":"small","count":10}
         put {
             val id = call.parameters["id"]!!.toInt()
+            val etagMatches = checkETag(call, id)
+            if (!etagMatches) return@put
             if (Database.doesPotExist(id)) {
                 val newPot = call.receive<Pot>()
                 Database.updatePot(id, newPot)
+                call.response.etag(Database.getPotsETag(id))
                 call.respond(HttpStatusCode.OK, "Pot updated")
             } else {
                 call.respond(HttpStatusCode.NotFound, "No pot found with id: $id")
