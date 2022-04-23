@@ -61,7 +61,15 @@ object Database {
 
     fun addDummyPot() = addPot(Pot("", 0))
 
-    fun updatePot(pot: Pot, id: Int) {
+    fun getPotById(id: Int) = potsMap[id]
+
+    fun doesPotExist(id: Int) = potsMap.containsKey(id)
+
+    fun deletePotById(id: Int): Boolean {
+        return potsMap.remove(id) != null
+    }
+
+    fun updatePot(id: Int, pot: Pot) {
         potsMap[id] = pot
     }
 

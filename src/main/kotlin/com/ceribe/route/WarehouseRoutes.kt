@@ -1,6 +1,8 @@
 package com.ceribe.route
 
 import com.ceribe.Database
+import com.ceribe.models.Pepper
+import com.ceribe.models.Pot
 import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.request.*
@@ -57,13 +59,35 @@ fun Route.warehouseRouting() {
 
     route("warehouse/pots/{id}") {
         get {
-
+//            val etag = call.request.headers["ETag"]
+            val id = call.parameters["id"]!!.toInt()
+            val pepper = Database.getPotById(id)
+            if (pepper != null) {
+//                call.response.etag("sfsdf")
+                call.respond(HttpStatusCode.OK, pepper)
+            } else {
+                call.respond(HttpStatusCode.NotFound, "No pepper found with id: $id")
+            }
         }
+        //curl -H Content-Type:application/json -X PUT http://localhost:8080/warehouse/pots/1 --data {"name":"small","count":10}
         put {
-
+            val id = call.parameters["id"]!!.toInt()
+            if (Database.doesPotExist(id)) {
+                val newPot = call.receive<Pot>()
+                Database.updatePot(id, newPot)
+                call.respond(HttpStatusCode.OK, "Pot updated")
+            } else {
+                call.respond(HttpStatusCode.NotFound, "No pot found with id: $id")
+            }
         }
         delete {
-
+            val id = call.parameters["id"]!!.toInt()
+            val wasPotDeleted = Database.deletePotById(id)
+            if (wasPotDeleted) {
+                call.respond(HttpStatusCode.OK, "Pot deleted")
+            } else {
+                call.respond(HttpStatusCode.NotFound, "No pot found with id: $id")
+            }
         }
     }
 }
