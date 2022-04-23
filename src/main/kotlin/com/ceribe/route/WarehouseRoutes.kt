@@ -1,7 +1,6 @@
 package com.ceribe.route
 
 import com.ceribe.Database
-import com.ceribe.models.Pepper
 import com.ceribe.models.Pot
 import io.ktor.http.*
 import io.ktor.server.application.*
@@ -61,7 +60,7 @@ fun Route.warehouseRouting() {
         get {
 //            val etag = call.request.headers["ETag"]
             val id = call.parameters["id"]!!.toInt()
-            val pepper = Database.getPotById(id)
+            val pepper = Database.getPot(id)
             if (pepper != null) {
 //                call.response.etag("sfsdf")
                 call.respond(HttpStatusCode.OK, pepper)
@@ -82,7 +81,7 @@ fun Route.warehouseRouting() {
         }
         delete {
             val id = call.parameters["id"]!!.toInt()
-            val wasPotDeleted = Database.deletePotById(id)
+            val wasPotDeleted = Database.deletePot(id)
             if (wasPotDeleted) {
                 call.respond(HttpStatusCode.OK, "Pot deleted")
             } else {

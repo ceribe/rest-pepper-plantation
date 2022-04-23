@@ -12,6 +12,9 @@ object Database {
     val peppers: List<Pepper>
         get() = peppersMap.values.toList()
 
+    val pots: List<Pot>
+        get() = potsMap.values.toList()
+
     fun getFilteredPeppers(filter: String?) =
         if (filter == null) {
             peppers
@@ -19,27 +22,40 @@ object Database {
             peppers.filter { it.name.contains(filter, true) }
         }
 
-    val pots: List<Pot>
-        get() = potsMap.values.toList()
-
-    fun addPepper(pepper: Pepper): Int {
+    private fun addPepper(pepper: Pepper): Int {
         val newId = peppersMap.keys.maxOfOrNull { it }?.plus(1) ?: 1
         peppersMap[newId] = pepper
         return newId
     }
 
+    private fun addPot(pot: Pot): Int {
+        val newId = potsMap.keys.maxOfOrNull { it }?.plus(1) ?: 1
+        potsMap[newId] = pot
+        return newId
+    }
+
     fun addDummyPepper() = addPepper(Pepper("", 0, System.currentTimeMillis()))
 
-    fun getPepperById(id: Int) = peppersMap[id]
+    fun addDummyPot() = addPot(Pot("", 0))
+
+    fun getPepper(id: Int) = peppersMap[id]
+
+    fun getPot(id: Int) = potsMap[id]
 
     fun doesPepperExist(id: Int) = peppersMap.containsKey(id)
 
-    fun deletePepperById(id: Int): Boolean {
-        return peppersMap.remove(id) != null
-    }
+    fun doesPotExist(id: Int) = potsMap.containsKey(id)
+
+    fun deletePepper(id: Int) = peppersMap.remove(id) != null
+
+    fun deletePot(id: Int) = potsMap.remove(id) != null
 
     fun updatePepper(id: Int, pepper: Pepper) {
         peppersMap[id] = pepper
+    }
+
+    fun updatePot(id: Int, pot: Pot) {
+        potsMap[id] = pot
     }
 
     fun repotPepper(pepper: Pepper, newPotId: Int): Boolean {
@@ -53,25 +69,5 @@ object Database {
         return true
     }
 
-    fun addPot(pot: Pot): Int {
-        val newId = potsMap.keys.maxOfOrNull { it }?.plus(1) ?: 1
-        potsMap[newId] = pot
-        return newId
-    }
-
-    fun addDummyPot() = addPot(Pot("", 0))
-
-    fun getPotById(id: Int) = potsMap[id]
-
-    fun doesPotExist(id: Int) = potsMap.containsKey(id)
-
-    fun deletePotById(id: Int): Boolean {
-        return potsMap.remove(id) != null
-    }
-
-    fun updatePot(id: Int, pot: Pot) {
-        potsMap[id] = pot
-    }
-
-    fun getPotCountById(id: Int) = potsMap[id]?.count ?: 0
+    fun getPotCount(id: Int) = potsMap[id]?.count ?: 0
 }
