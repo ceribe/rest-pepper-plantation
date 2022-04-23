@@ -35,8 +35,10 @@ fun Route.pepperRouting() {
         }
         post {
             val createdPepperId = Database.addDummyPepper()
-            call.response.etag(Database.getPeppersETag(createdPepperId))
-            call.respond(HttpStatusCode.Created, "Pepper created with id: $createdPepperId")
+            with(call) {
+                response.etag(Database.getPeppersETag(createdPepperId))
+                respond(HttpStatusCode.Created, "Pepper created with id: $createdPepperId")
+            }
         }
     }
 
@@ -48,8 +50,10 @@ fun Route.pepperRouting() {
                 call.respond(HttpStatusCode.NotFound, "Pepper with id $id not found")
                 return@get
             }
-            call.response.etag(Database.getPeppersETag(id))
-            call.respond(HttpStatusCode.OK, pepper.toString())
+            with(call) {
+                response.etag(Database.getPeppersETag(id))
+                respond(HttpStatusCode.OK, pepper.toString())
+            }
         }
         //curl -H Content-Type:application/json -X PUT --data {"name":"Reaper","pot":1,"lastWatering":"0"} http://localhost:8080/peppers/1
         put {
@@ -67,8 +71,10 @@ fun Route.pepperRouting() {
                 return@put
             }
             Database.updatePepper(id, updatedPepper)
-            call.response.etag(Database.getPeppersETag(id))
-            call.respond(HttpStatusCode.OK, "Pepper updated")
+            with(call) {
+                response.etag(Database.getPeppersETag(id))
+                respond(HttpStatusCode.OK, "Pepper updated")
+            }
 
         }
         delete {
@@ -95,10 +101,14 @@ fun Route.pepperRouting() {
                 call.respond(HttpStatusCode.BadRequest, "Not enough water")
                 return@post
             }
-            Database.waterAmount -= 1
-            Database.waterPepper(id)
-            call.response.etag(Database.getPeppersETag(id))
-            call.respond(HttpStatusCode.OK, "Pepper watered")
+            Database.apply {
+                waterAmount -= 1
+                waterPepper(id)
+            }
+            with(call) {
+                response.etag(Database.getPeppersETag(id))
+                respond(HttpStatusCode.OK, "Pepper watered")
+            }
         }
     }
 
@@ -122,8 +132,10 @@ fun Route.pepperRouting() {
                 call.respond(HttpStatusCode.BadRequest, "Not enough soil")
                 return@post
             }
-            call.response.etag(Database.getPeppersETag(pepperId))
-            call.respond(HttpStatusCode.OK, "Pepper repotted")
+            with(call) {
+                response.etag(Database.getPeppersETag(pepperId))
+                respond(HttpStatusCode.OK, "Pepper repotted")
+            }
         }
     }
 }

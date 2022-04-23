@@ -12,7 +12,7 @@ object Database {
     private val peppersETagMap = mutableMapOf<Int, Int>()
     private val potsETagMap = mutableMapOf<Int, Int>()
 
-    val peppers: List<Pepper>
+    private val peppers: List<Pepper>
         get() = peppersMap.values.toList()
 
     val pots: List<Pot>

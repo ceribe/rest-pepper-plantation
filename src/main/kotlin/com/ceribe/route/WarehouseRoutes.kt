@@ -74,8 +74,10 @@ fun Route.warehouseRouting() {
         }
         post {
             val createdPotId = Database.addDummyPot()
-            call.response.etag(Database.getPotsETag(createdPotId))
-            call.respond(HttpStatusCode.Created, "Pot created with id: $createdPotId")
+            with(call) {
+                response.etag(Database.getPotsETag(createdPotId))
+                respond(HttpStatusCode.Created, "Pot created with id: $createdPotId")
+            }
         }
     }
 
@@ -87,8 +89,10 @@ fun Route.warehouseRouting() {
                 call.respond(HttpStatusCode.NotFound, "No pepper found with id: $id")
                 return@get
             }
-            call.response.etag(Database.getPotsETag(id))
-            call.respond(HttpStatusCode.OK, pepper)
+            with(call) {
+                response.etag(Database.getPotsETag(id))
+                respond(HttpStatusCode.OK, pepper)
+            }
         }
         //curl -H Content-Type:application/json -X PUT http://localhost:8080/warehouse/pots/1 --data {"name":"small","count":10}
         put {
@@ -101,8 +105,10 @@ fun Route.warehouseRouting() {
             }
             val updatedPot = call.receive<Pot>()
             Database.updatePot(id, updatedPot)
-            call.response.etag(Database.getPotsETag(id))
-            call.respond(HttpStatusCode.OK, "Pot updated")
+            with(call) {
+                response.etag(Database.getPotsETag(id))
+                respond(HttpStatusCode.OK, "Pot updated")
+            }
         }
         delete {
             val id = call.parameters["id"]!!.toInt()
