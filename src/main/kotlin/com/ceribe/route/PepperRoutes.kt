@@ -27,11 +27,23 @@ fun Route.pepperRouting() {
         get {
             val requestedName = call.request.queryParameters["name"]
             val matchingPeppersList = Database.getFilteredPeppers(requestedName)
-            if (matchingPeppersList.isNotEmpty()) {
-                call.respond(HttpStatusCode.OK, matchingPeppersList.toString())
-            } else {
+            if (matchingPeppersList.isEmpty()) {
                 call.respond(HttpStatusCode.NotFound, "No peppers found")
+                return@get
             }
+            val start = call.request.queryParameters["start"]?.toIntOrNull() ?: 0
+            var limit = call.request.queryParameters["limit"]?.toIntOrNull() ?: 5
+            limit = limit.coerceAtMost(10)
+            limit = limit.coerceAtLeast(1)
+            val limitedPeppers = matchingPeppersList.drop(start).take(limit)
+            call.response.header("Total-Count", matchingPeppersList.size)
+            if (start + limit < matchingPeppersList.size) {
+                call.response.header("Next-Page", "/peppers?start=${start + limit}&limit=$limit")
+            }
+            if (start - limit >= 0) {
+                call.response.header("Previous-Page", "/peppers?start=${start - limit}&limit=$limit")
+            }
+            call.respond(HttpStatusCode.OK, limitedPeppers)
         }
         post {
             val createdPepperId = Database.addDummyPepper()
@@ -52,7 +64,7 @@ fun Route.pepperRouting() {
             }
             with(call) {
                 response.etag(Database.getPeppersETag(id))
-                respond(HttpStatusCode.OK, pepper.toString())
+                respond(HttpStatusCode.OK, pepper)
             }
         }
         //curl -H Content-Type:application/json -X PUT --data {"name":"Reaper","pot":1,"lastWatering":"0"} http://localhost:8080/peppers/1

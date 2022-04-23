@@ -67,7 +67,7 @@ fun Route.warehouseRouting() {
         get {
             val pots = Database.pots.filter { it.count > 0 }
             if (pots.isNotEmpty()) {
-                call.respond(HttpStatusCode.OK, pots.toString())
+                call.respond(HttpStatusCode.OK, pots)
             } else {
                 call.respond(HttpStatusCode.NotFound, "No unused pots found")
             }
@@ -84,14 +84,14 @@ fun Route.warehouseRouting() {
     route("warehouse/pots/{id}") {
         get {
             val id = call.parameters["id"]!!.toInt()
-            val pepper = Database.getPot(id)
-            if (pepper == null) {
-                call.respond(HttpStatusCode.NotFound, "No pepper found with id: $id")
+            val pot = Database.getPot(id)
+            if (pot == null) {
+                call.respond(HttpStatusCode.NotFound, "No pot found with id: $id")
                 return@get
             }
             with(call) {
                 response.etag(Database.getPotsETag(id))
-                respond(HttpStatusCode.OK, pepper)
+                respond(HttpStatusCode.OK, pot)
             }
         }
         //curl -H Content-Type:application/json -X PUT http://localhost:8080/warehouse/pots/1 --data {"name":"small","count":10}
