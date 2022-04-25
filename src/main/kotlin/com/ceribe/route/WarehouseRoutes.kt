@@ -112,6 +112,11 @@ fun Route.warehouseRouting() {
         }
         delete {
             val id = call.parameters["id"]!!.toInt()
+            val anyPepperUsesThisPot = Database.peppers.any { it.potId == id }
+            if (anyPepperUsesThisPot) {
+                call.respond(HttpStatusCode.BadRequest, "Some pepper is using this type of pot")
+                return@delete
+            }
             val wasPotDeleted = Database.deletePot(id)
             if (wasPotDeleted) {
                 call.respond(HttpStatusCode.OK, "Pot deleted")
