@@ -38,10 +38,12 @@ fun Route.pepperRouting() {
             val limitedPeppers = matchingPeppersList.drop(start).take(limit)
             call.response.header("Total-Count", matchingPeppersList.size)
             if (start + limit < matchingPeppersList.size) {
-                call.response.header("Next-Page", "/peppers?start=${start + limit}&limit=$limit")
+                call.response.header("Next-Page", "/peppers?start=${start + limit}&limit=$limit" +
+                        if (requestedName != null) "&name=$requestedName" else "")
             }
             if (start - limit >= 0) {
-                call.response.header("Previous-Page", "/peppers?start=${start - limit}&limit=$limit")
+                call.response.header("Previous-Page", "/peppers?start=${start - limit}&limit=$limit" +
+                        if (requestedName != null) "&name=$requestedName" else "")
             }
             call.respond(HttpStatusCode.OK, limitedPeppers)
         }
@@ -67,7 +69,7 @@ fun Route.pepperRouting() {
                 respond(HttpStatusCode.OK, pepper)
             }
         }
-        //curl -H Content-Type:application/json -X PUT --data {"name":"Reaper","pot":1,"lastWatering":"0"} http://localhost:8080/peppers/1
+        //curl -H Content-Type:application/json -H Etag:??? -X PUT --data {"name":"Reaper","potId":1,"lastWatering":"0"} http://localhost:8080/peppers/1
         put {
             val id = call.parameters["id"]!!.toInt()
             val etagMatches = checkETag(call, id)

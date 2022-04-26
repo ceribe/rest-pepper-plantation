@@ -94,7 +94,7 @@ fun Route.warehouseRouting() {
                 respond(HttpStatusCode.OK, pot)
             }
         }
-        //curl -H Content-Type:application/json -X PUT http://localhost:8080/warehouse/pots/1 --data {"name":"small","count":10}
+        //curl -H Content-Type:application/json -H Etag:??? -X PUT http://localhost:8080/warehouse/pots/1 --data {"name":"small","count":10}
         put {
             val id = call.parameters["id"]!!.toInt()
             val etagMatches = checkETag(call, id)
