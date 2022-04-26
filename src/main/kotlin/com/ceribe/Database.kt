@@ -9,7 +9,7 @@ object Database {
     var waterAmount = 10
     var soilAmount = 10
 
-    private val peppers: List<Pepper>
+    val peppers: List<Pepper>
         get() = peppersMap.values.toList()
 
     val pots: List<Pot>
