@@ -1,8 +1,8 @@
 package com.ceribe.plugins
 
-import com.ceribe.route.otherRouting
-import com.ceribe.route.pepperRouting
-import com.ceribe.route.warehouseRouting
+import com.ceribe.routes.otherRouting
+import com.ceribe.routes.pepperRouting
+import com.ceribe.routes.warehouseRouting
 import io.ktor.server.routing.*
 import io.ktor.server.application.*
 import io.ktor.server.response.*

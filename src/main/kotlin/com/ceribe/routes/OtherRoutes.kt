@@ -1,4 +1,4 @@
-package com.ceribe.route
+package com.ceribe.routes
 
 import com.ceribe.Database
 import io.ktor.http.*

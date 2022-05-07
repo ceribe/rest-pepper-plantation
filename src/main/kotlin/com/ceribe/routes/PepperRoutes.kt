@@ -1,4 +1,4 @@
-package com.ceribe.route
+package com.ceribe.routes
 
 import com.ceribe.Database
 import com.ceribe.models.Pepper
@@ -78,7 +78,11 @@ fun Route.pepperRouting() {
                 call.respond(HttpStatusCode.NotFound, "No pepper found with id: $id")
                 return@put
             }
-            val updatedPepper = call.receive<Pepper>()
+            val updatedPepper = call.receiveOrNull<Pepper>()
+            if (updatedPepper == null) {
+                call.respond(HttpStatusCode.BadRequest, "No pepper received")
+                return@put
+            }
             updatedPepper.lastWatering = System.currentTimeMillis()
             if (Database.getPotCount(updatedPepper.potId) == 0) {
                 call.respond(HttpStatusCode.BadRequest, "Pot with id: ${updatedPepper.potId} does not exist")
@@ -136,7 +140,11 @@ fun Route.pepperRouting() {
                 call.respond(HttpStatusCode.NotFound, "No pepper found with id: $pepperId")
                 return@post
             }
-            val potId = call.receive<String>().toInt()
+            val potId = call.receiveOrNull<String>()?.toInt()
+            if (potId == null) {
+                call.respond(HttpStatusCode.BadRequest, "No pot id received")
+                return@post
+            }
             if (Database.getPotCount(potId) == 0) {
                 call.respond(HttpStatusCode.BadRequest, "No pot found with id: $potId")
                 return@post

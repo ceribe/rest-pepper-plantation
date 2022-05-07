@@ -1,4 +1,4 @@
-package com.ceribe.route
+package com.ceribe.routes
 
 import com.ceribe.Database
 import com.ceribe.models.Pot
@@ -38,13 +38,13 @@ fun Route.warehouseRouting() {
         }
 
         put {
-            val body = call.receive<String>()
-            try {
-                Database.waterAmount = body.toInt()
-                call.respond(HttpStatusCode.OK, "Water: ${Database.waterAmount}")
-            } catch (e: NumberFormatException) {
+            val body = call.receiveOrNull<String>()
+            if (body == null) {
                 call.respond(HttpStatusCode.BadRequest, "Invalid water amount")
+                return@put
             }
+            Database.waterAmount = body.toInt()
+            call.respond(HttpStatusCode.OK, "Water: ${Database.waterAmount}")
         }
     }
 
@@ -53,13 +53,13 @@ fun Route.warehouseRouting() {
             call.respond(HttpStatusCode.OK, "${Database.soilAmount}")
         }
         put {
-            val body = call.receive<String>()
-            try {
-                Database.soilAmount = body.toInt()
-                call.respond(HttpStatusCode.OK, "Soil: ${Database.soilAmount}")
-            } catch (e: NumberFormatException) {
+            val body = call.receiveOrNull<String>()
+            if (body == null) {
                 call.respond(HttpStatusCode.BadRequest, "Invalid soil amount")
+                return@put
             }
+            Database.soilAmount = body.toInt()
+            call.respond(HttpStatusCode.OK, "Soil: ${Database.soilAmount}")
         }
     }
 
@@ -103,7 +103,11 @@ fun Route.warehouseRouting() {
                 call.respond(HttpStatusCode.NotFound, "No pot found with id: $id")
                 return@put
             }
-            val updatedPot = call.receive<Pot>()
+            val updatedPot = call.receiveOrNull<Pot>()
+            if (updatedPot == null) {
+                call.respond(HttpStatusCode.BadRequest, "Invalid pot")
+                return@put
+            }
             Database.updatePot(id, updatedPot)
             with(call) {
                 response.etag(Database.getPotsETag(id))
