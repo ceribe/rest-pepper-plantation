@@ -36,6 +36,10 @@ fun Route.pepperRouting() {
             limit = limit.coerceAtMost(10)
             limit = limit.coerceAtLeast(1)
             val limitedPeppers = matchingPeppersList.drop(start).take(limit)
+            if (limitedPeppers.isEmpty()) {
+                call.respond(HttpStatusCode.NotFound, "No peppers found")
+                return@get
+            }
             call.response.header("Total-Count", matchingPeppersList.size)
             if (start + limit < matchingPeppersList.size) {
                 call.response.header("Next-Page", "/peppers?start=${start + limit}&limit=$limit" +
