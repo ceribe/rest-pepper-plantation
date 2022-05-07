@@ -32,6 +32,10 @@ fun Route.pepperRouting() {
                 return@get
             }
             val start = call.request.queryParameters["start"]?.toIntOrNull() ?: 0
+            if (start < 0) {
+                call.respond(HttpStatusCode.BadRequest, "Invalid page")
+                return@get
+            }
             var limit = call.request.queryParameters["limit"]?.toIntOrNull() ?: 5
             limit = limit.coerceAtMost(10)
             limit = limit.coerceAtLeast(1)
