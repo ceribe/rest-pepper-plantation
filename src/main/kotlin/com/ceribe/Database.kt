@@ -10,10 +10,10 @@ object Database {
     var soilAmount = 10
 
     val peppers: List<Pepper>
-        get() = peppersMap.values.toList()
+        get() = peppersMap.values.toList().filter { it.name.isNotEmpty() }
 
     val pots: List<Pot>
-        get() = potsMap.values.toList()
+        get() = potsMap.values.toList().filter { it.name.isNotEmpty() }
 
     fun getFilteredPeppers(filter: String?) =
         if (filter == null) {
