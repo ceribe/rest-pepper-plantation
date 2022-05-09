@@ -91,7 +91,9 @@ fun Route.pepperRouting() {
                 call.respond(HttpStatusCode.BadRequest, "No pepper received")
                 return@put
             }
-            updatedPepper.lastWatering = System.currentTimeMillis()
+            if (updatedPepper.lastWatering == 0L) {
+                updatedPepper.lastWatering = Database.getPepper(id)?.lastWatering ?: 0
+            }
             if (Database.getPotCount(updatedPepper.potId) == 0) {
                 call.respond(HttpStatusCode.BadRequest, "Pot with id: ${updatedPepper.potId} does not exist")
                 return@put
