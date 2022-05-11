@@ -3,18 +3,11 @@
 # Objects
 
 ```kotlin
-data class Pepper(
-    var name: String, 
-    var potId: Int, 
-    var lastWatering: Long
-    )
+data class Pepper(var name: String, var potId: Int, var lastWatering: Long)
 ```
 
 ```kotlin
-data class Pot(
-    var name: String, 
-    var count: Int
-    )
+data class Pot(var name: String, var count: Int)
 ```
 
 # Routes
