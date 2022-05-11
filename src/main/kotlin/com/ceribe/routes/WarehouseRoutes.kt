@@ -38,12 +38,12 @@ fun Route.warehouseRouting() {
         }
 
         put {
-            val body = call.receiveOrNull<String>()
-            if (body == null) {
+            val waterAmount = call.receiveOrNull<String>()?.toIntOrNull()
+            if (waterAmount == null) {
                 call.respond(HttpStatusCode.BadRequest, "Invalid water amount")
                 return@put
             }
-            Database.waterAmount = body.toInt()
+            Database.waterAmount = waterAmount
             call.respond(HttpStatusCode.OK, "Water: ${Database.waterAmount}")
         }
     }
@@ -53,12 +53,12 @@ fun Route.warehouseRouting() {
             call.respond(HttpStatusCode.OK, "${Database.soilAmount}")
         }
         put {
-            val body = call.receiveOrNull<String>()
-            if (body == null) {
+            val soilAmount = call.receiveOrNull<String>()?.toIntOrNull()
+            if (soilAmount == null) {
                 call.respond(HttpStatusCode.BadRequest, "Invalid soil amount")
                 return@put
             }
-            Database.soilAmount = body.toInt()
+            Database.soilAmount = soilAmount
             call.respond(HttpStatusCode.OK, "Soil: ${Database.soilAmount}")
         }
     }
