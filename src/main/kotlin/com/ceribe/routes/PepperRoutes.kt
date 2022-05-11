@@ -47,21 +47,23 @@ fun Route.pepperRouting() {
             }
             call.response.header("Total-Count", matchingPeppersList.size)
             if (start + limit < matchingPeppersList.size) {
-                call.response.header("Next-Page", "/peppers?start=${start + limit}&limit=$limit" +
-                        if (requestedName != null) "&name=$requestedName" else "")
+                call.response.header(
+                    "Next-Page", "/peppers?start=${start + limit}&limit=$limit" +
+                            if (requestedName != null) "&name=$requestedName" else ""
+                )
             }
             if (start - limit >= 0) {
-                call.response.header("Previous-Page", "/peppers?start=${start - limit}&limit=$limit" +
-                        if (requestedName != null) "&name=$requestedName" else "")
+                call.response.header(
+                    "Previous-Page", "/peppers?start=${start - limit}&limit=$limit" +
+                            if (requestedName != null) "&name=$requestedName" else ""
+                )
             }
             call.respond(HttpStatusCode.OK, limitedPeppers)
         }
         post {
             val createdPepperId = Database.addDummyPepper()
-            with(call) {
-                response.etag(Database.getPepper(createdPepperId).etag)
-                respond(HttpStatusCode.Created, "Pepper created with id: $createdPepperId")
-            }
+            call.response.etag(Database.getPepper(createdPepperId).etag)
+            call.respond(HttpStatusCode.Created, "Pepper created with id: $createdPepperId")
         }
     }
 
@@ -73,10 +75,8 @@ fun Route.pepperRouting() {
                 call.respond(HttpStatusCode.NotFound, "Pepper with id $id not found")
                 return@get
             }
-            with(call) {
-                response.etag(Database.getPepper(id).etag)
-                respond(HttpStatusCode.OK, pepper)
-            }
+            call.response.etag(Database.getPepper(id).etag)
+            call.respond(HttpStatusCode.OK, pepper)
         }
         put {
             val id = call.parameters["id"]!!.toInt()
@@ -99,10 +99,8 @@ fun Route.pepperRouting() {
                 return@put
             }
             Database.updatePepper(id, updatedPepper)
-            with(call) {
-                response.etag(Database.getPepper(id).etag)
-                respond(HttpStatusCode.OK, "Pepper updated")
-            }
+            call.response.etag(Database.getPepper(id).etag)
+            call.respond(HttpStatusCode.OK, "Pepper updated")
 
         }
         delete {
@@ -116,7 +114,7 @@ fun Route.pepperRouting() {
         }
     }
 
-    route ("peppers/{id}/waterings") {
+    route("peppers/{id}/waterings") {
         post {
             val id = call.parameters["id"]!!.toInt()
             if (!Database.doesPepperExist(id)) {
@@ -129,18 +127,14 @@ fun Route.pepperRouting() {
                 call.respond(HttpStatusCode.BadRequest, "Not enough water")
                 return@post
             }
-            Database.apply {
-                waterAmount -= 1
-                waterPepper(id)
-            }
-            with(call) {
-                response.etag(Database.getPepper(id).etag)
-                respond(HttpStatusCode.OK, "Pepper watered")
-            }
+            Database.waterAmount -= 1
+            Database.waterPepper(id)
+            call.response.etag(Database.getPepper(id).etag)
+            call.respond(HttpStatusCode.OK, "Pepper watered")
         }
     }
 
-    route ("peppers/{id}/repottings") {
+    route("peppers/{id}/repottings") {
         post {
             val pepperId = call.parameters["id"]!!.toInt()
             val pepper = Database.getPepper(pepperId)
@@ -164,10 +158,8 @@ fun Route.pepperRouting() {
                 call.respond(HttpStatusCode.BadRequest, "Not enough soil")
                 return@post
             }
-            with(call) {
-                response.etag(Database.getPepper(pepperId).etag)
-                respond(HttpStatusCode.OK, "Pepper repotted")
-            }
+            call.response.etag(Database.getPepper(pepperId).etag)
+            call.respond(HttpStatusCode.OK, "Pepper repotted")
         }
     }
 }

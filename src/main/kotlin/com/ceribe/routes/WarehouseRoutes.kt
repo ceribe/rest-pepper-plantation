@@ -64,7 +64,7 @@ fun Route.warehouseRouting() {
         }
     }
 
-    route ("warehouse/pots") {
+    route("warehouse/pots") {
         get {
             val pots = Database.pots.filter { it.count > 0 }
             if (pots.isNotEmpty()) {
@@ -75,10 +75,8 @@ fun Route.warehouseRouting() {
         }
         post {
             val createdPotId = Database.addDummyPot()
-            with(call) {
-                response.etag(Database.getPot(createdPotId).etag)
-                respond(HttpStatusCode.Created, "Pot created with id: $createdPotId")
-            }
+            call.response.etag(Database.getPot(createdPotId).etag)
+            call.respond(HttpStatusCode.Created, "Pot created with id: $createdPotId")
         }
     }
 
@@ -90,10 +88,8 @@ fun Route.warehouseRouting() {
                 call.respond(HttpStatusCode.NotFound, "No pot found with id: $id")
                 return@get
             }
-            with(call) {
-                response.etag(Database.getPot(id).etag)
-                respond(HttpStatusCode.OK, pot)
-            }
+            call.response.etag(Database.getPot(id).etag)
+            call.respond(HttpStatusCode.OK, pot)
         }
         put {
             val id = call.parameters["id"]!!.toInt()
@@ -109,10 +105,8 @@ fun Route.warehouseRouting() {
                 return@put
             }
             Database.updatePot(id, updatedPot)
-            with(call) {
-                response.etag(Database.getPot(id).etag)
-                respond(HttpStatusCode.OK, "Pot updated")
-            }
+            call.response.etag(Database.getPot(id).etag)
+            call.respond(HttpStatusCode.OK, "Pot updated")
         }
         delete {
             val id = call.parameters["id"]!!.toInt()
