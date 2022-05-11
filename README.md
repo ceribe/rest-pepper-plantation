@@ -1,5 +1,24 @@
 # Rest Pepper Plantation
 
+# Objects
+
+```kotlin
+data class Pepper(
+    var name: String, 
+    var potId: Int, 
+    var lastWatering: Long
+    )
+```
+
+```kotlin
+data class Pot(
+    var name: String, 
+    var count: Int
+    )
+```
+
+# Routes
+
 # /peppers
 
 ### GET
