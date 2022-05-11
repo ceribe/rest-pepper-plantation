@@ -77,14 +77,10 @@ object Database {
 
     fun getPotCount(id: Int) = potsMap[id]?.count ?: 0
 
-    fun canWaterAllPeppers() = waterAmount > peppers.size
+    fun canAllPeppersBeWatered() = waterAmount > peppers.size
 
     fun waterAllPeppers() {
         waterAmount -= peppers.size
         peppers.forEach { it.lastWatering = System.currentTimeMillis() }
     }
-
-    fun getPeppersETag(id: Int) = peppersMap[id].hashCode().toString()
-
-    fun getPotsETag(id: Int) = potsMap[id].hashCode().toString()
 }

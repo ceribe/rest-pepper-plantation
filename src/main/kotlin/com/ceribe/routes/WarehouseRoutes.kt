@@ -2,6 +2,7 @@ package com.ceribe.routes
 
 import com.ceribe.Database
 import com.ceribe.models.Pot
+import com.ceribe.models.etag
 import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.request.*
@@ -16,7 +17,7 @@ fun Route.warehouseRouting() {
             call.respond(HttpStatusCode.BadRequest, "Missing ETag header")
             return false
         }
-        if (etag != Database.getPotsETag(potId)) {
+        if (etag != Database.getPot(potId).etag) {
             call.respond(HttpStatusCode.PreconditionFailed, "ETag does not match")
             return false
         }
@@ -75,7 +76,7 @@ fun Route.warehouseRouting() {
         post {
             val createdPotId = Database.addDummyPot()
             with(call) {
-                response.etag(Database.getPotsETag(createdPotId))
+                response.etag(Database.getPot(createdPotId).etag)
                 respond(HttpStatusCode.Created, "Pot created with id: $createdPotId")
             }
         }
@@ -90,19 +91,18 @@ fun Route.warehouseRouting() {
                 return@get
             }
             with(call) {
-                response.etag(Database.getPotsETag(id))
+                response.etag(Database.getPot(id).etag)
                 respond(HttpStatusCode.OK, pot)
             }
         }
-        //curl -H Content-Type:application/json -H Etag:??? -X PUT http://localhost:8080/warehouse/pots/1 --data {"name":"small","count":10}
         put {
             val id = call.parameters["id"]!!.toInt()
-            val etagMatches = checkETag(call, id)
-            if (!etagMatches) return@put
             if (!Database.doesPotExist(id)) {
                 call.respond(HttpStatusCode.NotFound, "No pot found with id: $id")
                 return@put
             }
+            val etagMatches = checkETag(call, id)
+            if (!etagMatches) return@put
             val updatedPot = call.receiveOrNull<Pot>()
             if (updatedPot == null) {
                 call.respond(HttpStatusCode.BadRequest, "Invalid pot")
@@ -110,7 +110,7 @@ fun Route.warehouseRouting() {
             }
             Database.updatePot(id, updatedPot)
             with(call) {
-                response.etag(Database.getPotsETag(id))
+                response.etag(Database.getPot(id).etag)
                 respond(HttpStatusCode.OK, "Pot updated")
             }
         }

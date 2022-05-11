@@ -9,7 +9,7 @@ import io.ktor.server.routing.*
 fun Route.otherRouting() {
     route("/waterings") {
         post {
-            val isEnoughWater = Database.canWaterAllPeppers()
+            val isEnoughWater = Database.canAllPeppersBeWatered()
             if (!isEnoughWater) {
                 call.respond(HttpStatusCode.BadRequest, "Not enough water")
                 return@post

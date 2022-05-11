@@ -2,6 +2,7 @@ package com.ceribe.routes
 
 import com.ceribe.Database
 import com.ceribe.models.Pepper
+import com.ceribe.models.etag
 import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.request.*
@@ -16,7 +17,7 @@ fun Route.pepperRouting() {
             call.respond(HttpStatusCode.BadRequest, "Missing ETag header")
             return false
         }
-        if (etag != Database.getPeppersETag(pepperId)) {
+        if (etag != Database.getPepper(pepperId).etag) {
             call.respond(HttpStatusCode.PreconditionFailed, "ETag does not match")
             return false
         }
@@ -58,7 +59,7 @@ fun Route.pepperRouting() {
         post {
             val createdPepperId = Database.addDummyPepper()
             with(call) {
-                response.etag(Database.getPeppersETag(createdPepperId))
+                response.etag(Database.getPepper(createdPepperId).etag)
                 respond(HttpStatusCode.Created, "Pepper created with id: $createdPepperId")
             }
         }
@@ -73,19 +74,18 @@ fun Route.pepperRouting() {
                 return@get
             }
             with(call) {
-                response.etag(Database.getPeppersETag(id))
+                response.etag(Database.getPepper(id).etag)
                 respond(HttpStatusCode.OK, pepper)
             }
         }
-        //curl -H Content-Type:application/json -H Etag:??? -X PUT --data {"name":"Reaper","potId":1,"lastWatering":"0"} http://localhost:8080/peppers/1
         put {
             val id = call.parameters["id"]!!.toInt()
-            val etagMatches = checkETag(call, id)
-            if (!etagMatches) return@put
             if (!Database.doesPepperExist(id)) {
                 call.respond(HttpStatusCode.NotFound, "No pepper found with id: $id")
                 return@put
             }
+            val etagMatches = checkETag(call, id)
+            if (!etagMatches) return@put
             val updatedPepper = call.receiveOrNull<Pepper>()
             if (updatedPepper == null) {
                 call.respond(HttpStatusCode.BadRequest, "No pepper received")
@@ -100,7 +100,7 @@ fun Route.pepperRouting() {
             }
             Database.updatePepper(id, updatedPepper)
             with(call) {
-                response.etag(Database.getPeppersETag(id))
+                response.etag(Database.getPepper(id).etag)
                 respond(HttpStatusCode.OK, "Pepper updated")
             }
 
@@ -119,12 +119,12 @@ fun Route.pepperRouting() {
     route ("peppers/{id}/waterings") {
         post {
             val id = call.parameters["id"]!!.toInt()
-            val etagMatches = checkETag(call, id)
-            if (!etagMatches) return@post
             if (!Database.doesPepperExist(id)) {
                 call.respond(HttpStatusCode.NotFound, "No pepper found with id: $id")
                 return@post
             }
+            val etagMatches = checkETag(call, id)
+            if (!etagMatches) return@post
             if (Database.waterAmount == 0) {
                 call.respond(HttpStatusCode.BadRequest, "Not enough water")
                 return@post
@@ -134,7 +134,7 @@ fun Route.pepperRouting() {
                 waterPepper(id)
             }
             with(call) {
-                response.etag(Database.getPeppersETag(id))
+                response.etag(Database.getPepper(id).etag)
                 respond(HttpStatusCode.OK, "Pepper watered")
             }
         }
@@ -143,13 +143,13 @@ fun Route.pepperRouting() {
     route ("peppers/{id}/repottings") {
         post {
             val pepperId = call.parameters["id"]!!.toInt()
-            val etagMatches = checkETag(call, pepperId)
-            if (!etagMatches) return@post
             val pepper = Database.getPepper(pepperId)
             if (pepper == null) {
                 call.respond(HttpStatusCode.NotFound, "No pepper found with id: $pepperId")
                 return@post
             }
+            val etagMatches = checkETag(call, pepperId)
+            if (!etagMatches) return@post
             val potId = call.receiveOrNull<String>()?.toIntOrNull()
             if (potId == null) {
                 call.respond(HttpStatusCode.BadRequest, "No pot id received")
@@ -165,7 +165,7 @@ fun Route.pepperRouting() {
                 return@post
             }
             with(call) {
-                response.etag(Database.getPeppersETag(pepperId))
+                response.etag(Database.getPepper(pepperId).etag)
                 respond(HttpStatusCode.OK, "Pepper repotted")
             }
         }
