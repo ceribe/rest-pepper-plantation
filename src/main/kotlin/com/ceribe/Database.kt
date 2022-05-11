@@ -68,8 +68,8 @@ object Database {
         if (soilAmount < 1)
             return false
         val oldPotId = pepper.potId
-        pots[oldPotId].count++
-        pots[newPotId].count--
+        potsMap[oldPotId]!!.count++
+        potsMap[newPotId]!!.count--
         pepper.potId = newPotId
         soilAmount--
         return true

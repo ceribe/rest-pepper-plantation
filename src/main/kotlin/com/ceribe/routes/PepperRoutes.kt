@@ -150,7 +150,7 @@ fun Route.pepperRouting() {
                 call.respond(HttpStatusCode.NotFound, "No pepper found with id: $pepperId")
                 return@post
             }
-            val potId = call.receiveOrNull<String>()?.toInt()
+            val potId = call.receiveOrNull<String>()?.toIntOrNull()
             if (potId == null) {
                 call.respond(HttpStatusCode.BadRequest, "No pot id received")
                 return@post
