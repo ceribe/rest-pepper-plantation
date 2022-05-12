@@ -14,7 +14,7 @@ fun Route.warehouseRouting() {
     suspend fun checkETag(call: ApplicationCall, potId: Int): Boolean {
         val etag = call.request.header("ETag")
         if (etag == null) {
-            call.respond(HttpStatusCode.BadRequest, "Missing ETag header")
+            call.respond(HttpStatusCode(428, "Precondition Required"), "Missing ETag header")
             return false
         }
         if (etag != Database.getPot(potId).etag) {

@@ -14,7 +14,7 @@ fun Route.pepperRouting() {
     suspend fun checkETag(call: ApplicationCall, pepperId: Int): Boolean {
         val etag = call.request.header("ETag")
         if (etag == null) {
-            call.respond(HttpStatusCode.BadRequest, "Missing ETag header")
+            call.respond(HttpStatusCode(428, "Precondition Required"), "Missing ETag header")
             return false
         }
         if (etag != Database.getPepper(pepperId).etag) {
