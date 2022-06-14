@@ -3,6 +3,10 @@ package com.ceribe
 import com.ceribe.models.Pepper
 import com.ceribe.models.Pot
 
+/*
+* The main point of this project was implementing a REST API so database was not important.
+* That's why it is not a real database.
+*/
 object Database {
     private val peppersMap = mutableMapOf<Int, Pepper>()
     private val potsMap = mutableMapOf<Int, Pot>()
